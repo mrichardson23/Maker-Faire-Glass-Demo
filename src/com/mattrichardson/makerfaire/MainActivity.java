@@ -34,14 +34,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	private TextView statusText;
-
 	public static final String DEBUG_TAG = "MyLoggingTag";
 	public static final String PREFS_NAME = "MyPrefsFile";
-	
-	TimerTask sendAccelData;
-	final Handler handler = new Handler();
-	Timer t = new Timer();
 	
 	boolean sendAccel = false;
 	String serverIP = "";
@@ -60,22 +54,7 @@ public class MainActivity extends Activity {
 			udpIp.setText(ipPref);
 		
 			udpPort = (EditText) findViewById(R.id.udpPort);
-			udpPort.setText(portPref);
-			
-	sendAccelData = new TimerTask() {
-	public void run() {
-	            handler.post(new Runnable() {
-	                    public void run() {
-	                    	if (sendAccel) {
-	                    		new Thread(new UDPClient(serverIP, serverPort, "10,20")).start();
-	                    	}
-	                    }
-	           });
-	    };
-	};
-	
-	t.schedule(sendAccelData, 0, 250);
-	
+			udpPort.setText(portPref);	
 	}
 
 	@Override
@@ -89,17 +68,12 @@ public class MainActivity extends Activity {
 	public void sendMessage(View view) {
 		ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		TextView statusText = new TextView(this);
-		statusText = (TextView) findViewById(R.id.networkStatus);
-
 		EditText udpIp = new EditText(this);
 		udpIp = (EditText) findViewById(R.id.udpIp);
 
 		EditText udpPort = new EditText(this);
 		udpPort = (EditText) findViewById(R.id.udpPort);
 		
-		EditText udpMessage = new EditText(this);
-		udpMessage = (EditText) findViewById(R.id.udpMessage);
 		
 		// Save the IP and Port to the preferences file:
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
@@ -110,51 +84,16 @@ public class MainActivity extends Activity {
 		
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
-			statusText.setText(getString(R.string.network_on));
 			
 			Intent intent = new Intent(this, SensorSender.class);
 			intent.putExtra("udpIp", udpIp.getText().toString());
 			intent.putExtra("udpPort", udpPort.getText().toString());
 			startActivity(intent);
 		} else {
-			statusText.setText(getString(R.string.network_off));
+			// alert to no network here.
 		}
 	}
 	
-	public void toggleSendData(View view) {
-		CheckBox sendData = new CheckBox(this);
-		sendData = (CheckBox) findViewById(R.id.sendData);
-		
-		EditText udpIp = new EditText(this);
-		udpIp = (EditText) findViewById(R.id.udpIp);
-		serverIP = udpIp.getText().toString();
-
-		EditText udpPort = new EditText(this);
-		udpPort = (EditText) findViewById(R.id.udpPort);
-		serverPort = udpPort.getText().toString();
-		
-		if (sendData.isChecked()) {
-			/* Disable server and port fields for editing */
-			udpIp.setEnabled(false);
-			udpIp.setFocusable(false);
-			udpPort.setEnabled(false);
-			udpPort.setFocusable(false);
-			
-			/* Turn on timer flag */
-			sendAccel = true;
-			
-		}
-		else {
-			/* Enable server and port fields for editing */
-			udpIp.setEnabled(true);
-			udpIp.setFocusable(true);
-			udpPort.setEnabled(true);
-			udpPort.setFocusable(true);
-			
-			/* Turn on timer flag */
-			sendAccel = false;
-		}
-	}
 
 	// Unused classes:
 	
@@ -175,8 +114,7 @@ public class MainActivity extends Activity {
 		// onPostExecute displays the results of the AsyncTask.
 		@Override
 		protected void onPostExecute(String result) {
-			statusText = (TextView) findViewById(R.id.networkStatus);
-			statusText.setText(result);
+
 		}
 	}
 

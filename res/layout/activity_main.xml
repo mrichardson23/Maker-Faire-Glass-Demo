@@ -23,33 +23,11 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/udp_server_port_hint" />
-    
-    <EditText
-        android:id="@+id/udpMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/udp_message_hint" />
 	
 	<Button
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:text="@string/button_send"
 		android:onClick="sendMessage"/>
-
-	<CheckBox
-	    android:id="@+id/sendData"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="@string/send_accel_data" 
-	    android:onClick="toggleSendData"/>
-
-	<TextView
-	    android:id="@+id/networkStatus"
-	    android:layout_width="match_parent"
-	    android:layout_height="0dp"
-	    android:layout_weight="0.32"
-	    android:text="@string/network_status"
-	    android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </LinearLayout>
