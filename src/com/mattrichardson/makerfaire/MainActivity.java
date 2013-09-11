@@ -111,17 +111,14 @@ public class MainActivity extends Activity {
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			statusText.setText(getString(R.string.network_on));
-			// new DownloadWebpageTask().execute("http://mattrichardson.com");
-			new Thread(new UDPClient(udpIp.getText().toString(), udpPort.getText()
-					.toString(), udpMessage.getText().toString())).start();
+			
+			Intent intent = new Intent(this, SensorSender.class);
+			intent.putExtra("udpIp", udpIp.getText().toString());
+			intent.putExtra("udpPort", udpPort.getText().toString());
+			startActivity(intent);
 		} else {
 			statusText.setText(getString(R.string.network_off));
 		}
-		
-		Intent intent = new Intent(this, SensorSender.class);
-		intent.putExtra("udpIp", udpIp.getText().toString());
-		intent.putExtra("udpPort", udpPort.getText().toString());
-		startActivity(intent);
 	}
 	
 	public void toggleSendData(View view) {
@@ -162,6 +159,9 @@ public class MainActivity extends Activity {
 	// Unused classes:
 	
 	private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+		
+		// usage: new DownloadWebpageTask().execute("http://mattrichardson.com");
+		
 		@Override
 		protected String doInBackground(String... urls) {
 			// params comes from the execute() call: params[0] is the url.
@@ -184,6 +184,8 @@ public class MainActivity extends Activity {
 		InputStream is = null;
 		// Only display the first 500 characters of the retrieved
 		// web page content.
+		
+		
 		int len = 500;
 
 		try {

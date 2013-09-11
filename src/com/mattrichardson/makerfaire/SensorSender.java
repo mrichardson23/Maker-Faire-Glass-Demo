@@ -8,18 +8,18 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 public class SensorSender extends Activity implements SensorEventListener {
   private SensorManager sensorManager;
-  private boolean color = false;
   private View view;
-  private long lastUpdate;
   private String udpIp;
   private String udpPort;
+  private long interval = 100;
+  private long prevMillis = 0;
 
   
 /** Called when the activity is first created. */
@@ -35,7 +35,6 @@ public class SensorSender extends Activity implements SensorEventListener {
     view.setBackgroundColor(Color.GREEN);
 
     sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-    lastUpdate = System.currentTimeMillis();
     
     // MainActivity will pass the IP and port from the input screen. Get that:
     Intent iin= getIntent();
@@ -46,39 +45,26 @@ public class SensorSender extends Activity implements SensorEventListener {
 
   @Override
   public void onSensorChanged(SensorEvent event) {
-    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-      getAccelerometer(event);
+    if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+      getRotation(event);
     }
 
   }
 
-  private void getAccelerometer(SensorEvent event) {
+  private void getRotation(SensorEvent event) {
     float[] values = event.values;
     // Movement
     float x = values[0];
     float y = values[1];
     float z = values[2];
-
-    float accelationSquareRoot = (x * x + y * y + z * z)
-        / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-    long actualTime = System.currentTimeMillis();
-    if (accelationSquareRoot >= 2) //
-    {
-      if (actualTime - lastUpdate < 200) {
-        return;
-      }
-      lastUpdate = actualTime;
-      Toast.makeText(this, "Device was shuffed", Toast.LENGTH_SHORT)
-          .show();
-      if (color) {
-        view.setBackgroundColor(Color.GREEN);
-        new Thread(new UDPClient(udpIp, udpPort, "shaken!")).start();
-
-      } else {
-        view.setBackgroundColor(Color.RED);
-        new Thread(new UDPClient(udpIp, udpPort, "shaken!")).start();
-      }
-      color = !color;
+    
+    String message = String.format("%.2g", x) + "," + String.format("%.2g", y) + "," + String.format("%.2g", z);
+    
+    long currMillis= System.currentTimeMillis();
+    
+    if (currMillis > prevMillis + interval) {
+    	new Thread(new UDPClient(udpIp, udpPort, message)).start();
+        prevMillis = currMillis;
     }
   }
 
@@ -93,7 +79,7 @@ public class SensorSender extends Activity implements SensorEventListener {
     // register this class as a listener for the orientation and
     // accelerometer sensors
     sensorManager.registerListener(this,
-        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+        sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
         SensorManager.SENSOR_DELAY_NORMAL);
   }
 
