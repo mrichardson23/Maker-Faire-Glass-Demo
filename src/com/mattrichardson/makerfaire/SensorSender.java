@@ -1,5 +1,7 @@
 package com.mattrichardson.makerfaire;
 
+// Mostly based on: http://www.vogella.com/articles/AndroidSensor/article.html
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -18,6 +20,7 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -141,4 +144,18 @@ public class SensorSender extends Activity implements SensorEventListener {
           mv.showFps(true);
       }
   }
+  
+	@Override 
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+	    switch (keyCode) {
+	        case KeyEvent.KEYCODE_DPAD_CENTER:
+	        {
+	        	// TODO: Add action to initiate camera position via UDP here.
+	        	//new Thread(new UDPClient(udpIp.getText().toString(), udpPort.getText().toString(), "0,-1"));
+	            return true;
+	        }
+	    }
+	    return super.onKeyDown(keyCode, event);
+	}
 }
