@@ -15,7 +15,7 @@ public class MainActivity extends Activity {
 
 	public static final String DEBUG_TAG = "MyLoggingTag";
 	public static final String PREFS_NAME = "MyPrefsFile";
-	
+
 	boolean sendAccel = false;
 	String serverIP = "";
 	String serverPort = "";
@@ -25,15 +25,15 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-	       String ipPref = settings.getString("udpIpAddress", "10.0.1.5");
-	       String portPref = settings.getString("udpPort", "4444");
-	       	EditText udpIp = new EditText(this);
-			udpIp = (EditText) findViewById(R.id.udpIp);
-			EditText udpPort = new EditText(this);
-			udpIp.setText(ipPref);
-		
-			udpPort = (EditText) findViewById(R.id.udpPort);
-			udpPort.setText(portPref);	
+		String ipPref = settings.getString("udpIpAddress", "10.0.1.5");
+		String portPref = settings.getString("udpPort", "4444");
+		EditText udpIp = new EditText(this);
+		udpIp = (EditText) findViewById(R.id.udpIp);
+		EditText udpPort = new EditText(this);
+		udpIp.setText(ipPref);
+
+		udpPort = (EditText) findViewById(R.id.udpPort);
+		udpPort.setText(portPref);
 	}
 
 	@Override
@@ -52,18 +52,17 @@ public class MainActivity extends Activity {
 
 		EditText udpPort = new EditText(this);
 		udpPort = (EditText) findViewById(R.id.udpPort);
-		
-		
+
 		// Save the IP and Port to the preferences file:
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString("udpIpAddress", udpIp.getText().toString());
 		editor.putString("udpPort", udpPort.getText().toString());
 		editor.commit();
-		
+
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
-			
+
 			Intent intent = new Intent(this, SensorSender.class);
 			intent.putExtra("udpIp", udpIp.getText().toString());
 			intent.putExtra("udpPort", udpPort.getText().toString());
@@ -71,5 +70,5 @@ public class MainActivity extends Activity {
 		} else {
 			// TODO: alert to no network here.
 		}
-	}	
+	}
 }

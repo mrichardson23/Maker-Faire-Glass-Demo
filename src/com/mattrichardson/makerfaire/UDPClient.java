@@ -6,46 +6,46 @@ import java.net.InetAddress;
 
 import android.util.Log;
 
-	public class UDPClient implements Runnable {
-		
-		/*
-		 * Usage to send UDP Packet:
-		 * new Thread(new UDPClient("182.168.1.15", "4444", "Hello, world!")).start();
-		 * new Thread(new UDPClient(String ip, String port, string message)).start();
-		 */
-		
-		private String udpIp;
-		private int udpPort;
-		private String message;
+public class UDPClient implements Runnable {
 
-		public UDPClient(String _udpIp, String _udpPort, String _message) {
-			this.udpIp = _udpIp;
-			this.udpPort = Integer.parseInt(_udpPort);
-			this.message = _message;
-		}
+	/*
+	 * Usage to send UDP Packet: new Thread(new UDPClient("182.168.1.15",
+	 * "4444", "Hello, world!")).start(); new Thread(new UDPClient(String ip,
+	 * String port, string message)).start();
+	 */
 
-		@Override
-		public void run() {
-			try {
-				// Retrieve the ServerName
-				InetAddress serverAddr = InetAddress.getByName(udpIp);
-				DatagramSocket socket = new DatagramSocket();
+	private String udpIp;
+	private int udpPort;
+	private String message;
 
-				/* Prepare some data to be sent. */
-				byte[] buf = (message).getBytes();
+	public UDPClient(String _udpIp, String _udpPort, String _message) {
+		this.udpIp = _udpIp;
+		this.udpPort = Integer.parseInt(_udpPort);
+		this.message = _message;
+	}
 
-				/*
-				 * Create UDP-packet with data & destination(url+port)
-				 */
-				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						serverAddr, udpPort);
+	@Override
+	public void run() {
+		try {
+			// Retrieve the ServerName
+			InetAddress serverAddr = InetAddress.getByName(udpIp);
+			DatagramSocket socket = new DatagramSocket();
 
-				/* Send out the packet */
-				socket.send(packet);
-				Log.d("UDP", "Sent: '" + new String(buf) + "'");
+			/* Prepare some data to be sent. */
+			byte[] buf = (message).getBytes();
 
-			} catch (Exception e) {
-				Log.e("UDP", "C: Error", e);
-			}
+			/*
+			 * Create UDP-packet with data & destination(url+port)
+			 */
+			DatagramPacket packet = new DatagramPacket(buf, buf.length,
+					serverAddr, udpPort);
+
+			/* Send out the packet */
+			socket.send(packet);
+			Log.d("UDP", "Sent: '" + new String(buf) + "'");
+
+		} catch (Exception e) {
+			Log.e("UDP", "C: Error", e);
 		}
 	}
+}
