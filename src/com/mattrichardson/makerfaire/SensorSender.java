@@ -12,7 +12,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -21,13 +20,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class SensorSender extends Activity implements SensorEventListener {
 	private SensorManager sensorManager;
-	private View view;
 	private String udpIp;
 	private String udpPort;
 	private long interval = 100;
@@ -40,15 +37,15 @@ public class SensorSender extends Activity implements SensorEventListener {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		
+		// We're going full screen:
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sensor_sender);
-		view = findViewById(R.id.textView);
-		view.setBackgroundColor(Color.GREEN);
+		findViewById(R.id.textView);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -58,10 +55,13 @@ public class SensorSender extends Activity implements SensorEventListener {
 		Bundle extras = iin.getExtras();
 		udpIp = extras.getString("udpIp");
 		udpPort = extras.getString("udpPort");
+		
+		// Here we'll form the MJPG stream URL:
 		String URL = "http://" + udpIp + ":8090/?action=stream";
+		
+		// Now show the MJPG stream:
 		mv = new MjpegView(this);
 		setContentView(mv);
-
 		new DoRead().execute(URL);
 	}
 
@@ -163,7 +163,7 @@ public class SensorSender extends Activity implements SensorEventListener {
 
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_DPAD_CENTER: {
-			// Toggle sendPosition flag on tap.
+			// Toggle sendPosition flag on tap of touch pad:
 			sendPosition = !sendPosition;
 			return true;
 		}
