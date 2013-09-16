@@ -3,7 +3,6 @@ package com.mattrichardson.makerfaire;
 // Mostly based on: http://www.vogella.com/articles/AndroidSensor/article.html
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
 
 import org.apache.http.HttpResponse;
@@ -31,9 +30,9 @@ public class SensorSender extends Activity implements SensorEventListener {
 	private long interval = 100;
 	private long prevMillis = 0;
 	private boolean sendPosition = false;
-	
-	//for the low-pass filter:
-	static final float ALPHA = 0.1f;	
+
+	// for the low-pass filter:
+	static final float ALPHA = 0.1f;
 	protected float[] accelVals;
 
 	private MjpegView mv;
@@ -42,10 +41,11 @@ public class SensorSender extends Activity implements SensorEventListener {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		
+
 		// We're going full screen:
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		super.onCreate(savedInstanceState);
@@ -60,10 +60,10 @@ public class SensorSender extends Activity implements SensorEventListener {
 		Bundle extras = iin.getExtras();
 		udpIp = extras.getString("udpIp");
 		udpPort = extras.getString("udpPort");
-		
+
 		// Here we'll form the MJPG stream URL:
 		String URL = "http://" + udpIp + ":8090/?action=stream";
-		
+
 		// Now show the MJPG stream:
 		mv = new MjpegView(this);
 		setContentView(mv);
@@ -73,7 +73,7 @@ public class SensorSender extends Activity implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-			accelVals = lowPass( event.values, accelVals );
+			accelVals = lowPass(event.values, accelVals);
 			getRotation(accelVals);
 		}
 
@@ -86,7 +86,7 @@ public class SensorSender extends Activity implements SensorEventListener {
 			// Are we in sendPosition mode?
 			if (sendPosition) {
 				// Get the data
-				//float[] values = event.values;
+				// float[] values = event.values;
 				float x = values[0];
 				float y = values[1];
 				float z = values[2];
@@ -95,7 +95,7 @@ public class SensorSender extends Activity implements SensorEventListener {
 				String message = String.format("%.2f", x) + ","
 						+ String.format("%.2f", y) + ","
 						+ String.format("%.2f", z);
-				
+
 				Log.d("msg", message);
 
 				// Send the data in a new thread
@@ -178,23 +178,16 @@ public class SensorSender extends Activity implements SensorEventListener {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
-	// from: http://blog.thomnichols.org/2011/08/smoothing-sensor-data-with-a-low-pass-filter
-	protected float[] lowPass( float[] input, float[] output ) {
-	    if ( output == null ) return input;
 
-	    for ( int i=0; i<input.length; i++ ) {
-	        output[i] = output[i] + ALPHA * (input[i] - output[i]);
-	    }
-	    return output;
+	// from:
+	// http://blog.thomnichols.org/2011/08/smoothing-sensor-data-with-a-low-pass-filter
+	protected float[] lowPass(float[] input, float[] output) {
+		if (output == null)
+			return input;
+
+		for (int i = 0; i < input.length; i++) {
+			output[i] = output[i] + ALPHA * (input[i] - output[i]);
+		}
+		return output;
 	}
-	
-	// from: http://stackoverflow.com/questions/8911356/whats-the-best-practice-to-round-a-float-to-2-decimals
-	public static float round(float d, int decimalPlace) {
-        BigDecimal bd = new BigDecimal(Float.toString(d));
-        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
-        return bd.floatValue();
-    }
-
-	
 }
