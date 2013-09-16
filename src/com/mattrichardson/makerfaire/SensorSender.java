@@ -3,6 +3,7 @@ package com.mattrichardson.makerfaire;
 // Mostly based on: http://www.vogella.com/articles/AndroidSensor/article.html
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 
 import org.apache.http.HttpResponse;
@@ -30,6 +31,10 @@ public class SensorSender extends Activity implements SensorEventListener {
 	private long interval = 100;
 	private long prevMillis = 0;
 	private boolean sendPosition = false;
+	
+	//for the low-pass filter:
+	static final float ALPHA = 0.1f;	
+	protected float[] accelVals;
 
 	private MjpegView mv;
 	private static final String TAG = "MjpegActivity";
@@ -67,28 +72,31 @@ public class SensorSender extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-			getRotation(event);
+		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+			accelVals = lowPass( event.values, accelVals );
+			getRotation(accelVals);
 		}
 
 	}
 
-	private void getRotation(SensorEvent event) {
+	private void getRotation(float[] values) {
 		long currMillis = System.currentTimeMillis();
 		// has the interval passed?
 		if (currMillis > prevMillis + interval) {
 			// Are we in sendPosition mode?
 			if (sendPosition) {
 				// Get the data
-				float[] values = event.values;
+				//float[] values = event.values;
 				float x = values[0];
 				float y = values[1];
 				float z = values[2];
 
 				// Format the message for the UDPListener on the Pi
-				String message = String.format("%.2g", x) + ","
-						+ String.format("%.2g", y) + ","
-						+ String.format("%.2g", z);
+				String message = String.format("%.2f", x) + ","
+						+ String.format("%.2f", y) + ","
+						+ String.format("%.2f", z);
+				
+				Log.d("msg", message);
 
 				// Send the data in a new thread
 				new Thread(new UDPClient(udpIp, udpPort, message)).start();
@@ -109,7 +117,7 @@ public class SensorSender extends Activity implements SensorEventListener {
 		// register this class as a listener for the orientation and
 		// accelerometer sensors
 		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+				sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
 				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
@@ -170,4 +178,23 @@ public class SensorSender extends Activity implements SensorEventListener {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	// from: http://blog.thomnichols.org/2011/08/smoothing-sensor-data-with-a-low-pass-filter
+	protected float[] lowPass( float[] input, float[] output ) {
+	    if ( output == null ) return input;
+
+	    for ( int i=0; i<input.length; i++ ) {
+	        output[i] = output[i] + ALPHA * (input[i] - output[i]);
+	    }
+	    return output;
+	}
+	
+	// from: http://stackoverflow.com/questions/8911356/whats-the-best-practice-to-round-a-float-to-2-decimals
+	public static float round(float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd.floatValue();
+    }
+
+	
 }
