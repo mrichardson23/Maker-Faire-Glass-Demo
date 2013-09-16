@@ -96,8 +96,6 @@ public class SensorSender extends Activity implements SensorEventListener {
 						+ String.format("%.2f", y) + ","
 						+ String.format("%.2f", z);
 
-				Log.d("msg", message);
-
 				// Send the data in a new thread
 				new Thread(new UDPClient(udpIp, udpPort, message)).start();
 			}
