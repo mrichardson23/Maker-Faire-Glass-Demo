@@ -73,20 +73,20 @@ public class SensorSender extends Activity implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-			accelVals = lowPass(event.values, accelVals);
-			getRotation(accelVals);
+		//accelVals = lowPass(event.values, accelVals);
+			getRotation(event);
 		}
 
 	}
 
-	private void getRotation(float[] values) {
+	private void getRotation(SensorEvent event) {
 		long currMillis = System.currentTimeMillis();
 		// has the interval passed?
 		if (currMillis > prevMillis + interval) {
 			// Are we in sendPosition mode?
 			if (sendPosition) {
 				// Get the data
-				// float[] values = event.values;
+				float[] values = event.values;
 				float x = values[0];
 				float y = values[1];
 				float z = values[2];
